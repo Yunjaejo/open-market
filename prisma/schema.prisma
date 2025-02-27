@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  pwd       String
+  name      String
+  phone     String   @unique
+  nickname  String   @unique
+  address   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  type      UserType
+  isDeleted Boolean  @default(false)
+
+  items        Item[]
+  Cart         Cart[]
+  Order        Order[]
+  Review       Review[]
+  RefreshToken RefreshToken?
+}
+
+enum UserType {
+  CUSTOMER
+  SELLER
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  userId    String   @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Item {
+  id          String   @id @default(uuid())
+  name        String
+  category    Category
+  price       Int
+  quantity    Int
+  image_url   String?
+  info        String
+  reviewCount Int
+  nickname    String
+  userId      String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  OrderItem OrderItem[]
+
+  @@index([userId])
+}
+
+enum Category {
+  FOOD
+  FASHION
+  PET
+  ETC
+}
+
+model Cart {
+  id        String   @id @default(uuid())
+  itemId    String
+  quantity  Int
+  createdAt DateTime @default(now())
+  userId    String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id         String      @id @default(uuid())
+  totalPrice Int
+  status     OrderStatus @default(PENDING)
+  createdAt  DateTime    @default(now())
+  userId     String
+
+  user User @relation(fields: [userId], references: [id])
+
+  OrderItem OrderItem[]
+}
+
+enum OrderStatus {
+  PENDING
+  FULFILLED
+  CANCELLED
+}
+
+model OrderItem {
+  id       String @id @default(uuid())
+  orderId  String
+  itemId   String
+  price    Int
+  quantity Int
+
+  order Order @relation(fields: [orderId], references: [id])
+  item  Item  @relation(fields: [itemId], references: [id])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  itemId    String
+  nickname  String
+  rating    Int
+  content   String?
+  createdAt DateTime @default(now())
+  isDeleted Boolean?
+  userId    String
+
+  user User @relation(fields: [userId], references: [id])
+
+  ReviewComment ReviewComment[]
+}
+
+model ReviewComment {
+  id        String   @id @default(uuid())
+  nickname  String
+  content   String
+  type      UserType
+  createdAt DateTime @default(now())
+  reviewId  String
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+}
