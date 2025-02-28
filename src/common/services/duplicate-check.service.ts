@@ -8,7 +8,7 @@ import { DuplicatePhoneException } from '../exceptions/duplicate-phone.exception
 export class DuplicateCheckService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async checkDuplicate(email: string, nickname: string, phone: string) {
+  async checkDuplicate(email?: string, nickname?: string, phone?: string) {
     const existingUser = await this.prisma.user.findFirst({
       where: {
         OR: [{ email }, { nickname }, { phone }],
