@@ -97,7 +97,7 @@ export class AuthService {
   async refreshAccessToken(userId: string) {
     const token = await this.tokenRepository.findByUserId(userId);
 
-    if (!token) {
+    if (!token || token.userId !== userId) {
       throw new Error('Invalid refresh token');
     }
 
