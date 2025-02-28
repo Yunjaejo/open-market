@@ -16,4 +16,8 @@ export class PrismaUserRepository implements UserRepository {
       where: { id },
     });
   }
+
+  create(user: User): Promise<User> {
+    return this.prisma.user.create({ data: user });
+  }
 }
