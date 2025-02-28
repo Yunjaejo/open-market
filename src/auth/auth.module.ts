@@ -5,11 +5,13 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { DuplicateCheckService } from '../common/services/duplicate-check.service';
 import { PasswordService } from '../common/services/password.service';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   controllers: [AuthController],
   providers: [
     AuthService,
+    JwtStrategy,
     JwtService,
     UsersService,
     DuplicateCheckService,
