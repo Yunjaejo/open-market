@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { PasswordService } from '../common/services/password.service';
 import { DuplicateCheckService } from '../common/services/duplicate-check.service';
 
@@ -12,21 +11,9 @@ export class UsersService {
     private readonly duplicateCheckService: DuplicateCheckService,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto) {
-    const { pwd, ...userData } = createUserDto;
-    await this.duplicateCheckService.checkDuplicate(
-      userData.email,
-      userData.nickname,
-      userData.phone,
-    );
-
-    const hashPwd = await this.passwordService.hashPwd(pwd);
-
-    const user = {
-      ...userData,
-      pwd: hashPwd,
-    };
-
-    return this.prisma.user.create({ data: user });
+  async findById(userId: string) {
+    return this.prisma.user.findFirst({
+      where: { id: userId },
+    });
   }
 }
