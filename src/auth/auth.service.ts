@@ -5,7 +5,6 @@ import { User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { DuplicateCheckService } from '../common/services/duplicate-check.service';
 import { PasswordService } from '../common/services/password.service';
 import { LoginUserDto } from './dto/login-user.dto';
 
@@ -16,28 +15,17 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
-    private readonly duplicateCheckService: DuplicateCheckService,
     private readonly passwordService: PasswordService,
   ) {}
 
   private readonly expiresDay = 15;
 
   async createUser(createUserDto: CreateUserDto) {
-    const { pwd, ...userData } = createUserDto;
-    await this.duplicateCheckService.checkDuplicate(
-      userData.email,
-      userData.nickname,
-      userData.phone,
-    );
+    const user = await this.usersService.createUser(createUserDto);
+    const accessToken = await this.createAccessToken(user);
+    const refreshToken = await this.createRefreshToken(user);
 
-    const hashPwd = await this.passwordService.hashPwd(pwd);
-
-    const user = {
-      ...userData,
-      pwd: hashPwd,
-    };
-
-    return this.prisma.user.create({ data: user });
+    return { accessToken, refreshToken };
   }
 
   async loginUser(loginUserDto: LoginUserDto) {
@@ -49,9 +37,7 @@ export class AuthService {
   }
 
   async validate(email: string, pwd: string) {
-    const user = await this.prisma.user.findFirst({
-      where: { email },
-    });
+    const user = await this.usersService.findByEmail(email);
 
     if (!user) {
       throw new Error('Invalid credentials');

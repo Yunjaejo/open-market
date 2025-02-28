@@ -1,19 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { PasswordService } from '../common/services/password.service';
 import { DuplicateCheckService } from '../common/services/duplicate-check.service';
+import { UserRepository } from './repository/user.repository.interface';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
     private readonly duplicateCheckService: DuplicateCheckService,
   ) {}
 
+  async createUser(createUserDto: CreateUserDto) {
+    const { pwd, ...userData } = createUserDto;
+    await this.duplicateCheckService.checkDuplicate(
+      userData.email,
+      userData.nickname,
+      userData.phone,
+    );
+
+    const hashPwd = await this.passwordService.hashPwd(pwd);
+
+    const user = {
+      ...userData,
+      pwd: hashPwd,
+    };
+
+    return this.userRepository.create(user);
+  }
+
   async findById(userId: string) {
-    return this.prisma.user.findFirst({
-      where: { id: userId },
-    });
+    return this.userRepository.findById(userId);
+  }
+
+  async findByEmail(email: string) {
+    return this.userRepository.findByEmail(email);
   }
 }
