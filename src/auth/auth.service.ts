@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
@@ -7,15 +6,17 @@ import { UsersService } from '../users/users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PasswordService } from '../common/services/password.service';
 import { LoginUserDto } from './dto/login-user.dto';
+import { RefreshTokenRepository } from './repository/token.repository.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly passwordService: PasswordService,
+    @Inject('TokenRepository')
+    private readonly tokenRepository: RefreshTokenRepository,
   ) {}
 
   private readonly expiresDay = 15;
@@ -86,24 +87,11 @@ export class AuthService {
   }
 
   private async saveRefreshToken(user: User, refreshToken: string) {
-    await this.prisma.refreshToken.upsert({
-      where: { userId: user.id },
-      update: {
-        token: refreshToken,
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * this.expiresDay),
-      },
-      create: {
-        userId: user.id,
-        token: refreshToken,
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * this.expiresDay),
-      },
-    });
+    await this.tokenRepository.upsert(user.id, refreshToken, this.expiresDay);
   }
 
   async refreshAccessToken(userId: string) {
-    const token = await this.prisma.refreshToken.findFirst({
-      where: { userId },
-    });
+    const token = await this.tokenRepository.findByUserId(userId);
 
     if (!token) {
       throw new Error('Invalid refresh token');

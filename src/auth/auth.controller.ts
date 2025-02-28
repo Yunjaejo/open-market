@@ -48,10 +48,8 @@ export class AuthController {
 
   @Post('refresh')
   @UseGuards(JwtAuthGuard)
-  async refresh(@Req() req: Request, @Res() res: Response) {
+  async refresh(@Req() req: Request) {
     const userId = req.cookies.user.userId;
-    const newAccessToken = await this.authService.refreshAccessToken(userId);
-
-    return res.json({ newAccessToken });
+    return await this.authService.refreshAccessToken(userId);
   }
 }

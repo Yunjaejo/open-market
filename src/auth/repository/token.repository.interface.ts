@@ -1,7 +1,7 @@
-export interface RefreshTokenRepository {
-  upsert(userId: string, token: string, expiresAt: Date): Promise<void>;
+import { RefreshToken } from '@prisma/client';
 
-  findByUserId(
-    userId: string,
-  ): Promise<{ token: string; expiresAt: Date } | null>;
+export interface RefreshTokenRepository {
+  upsert(userId: string, token: string, expiresIn: number): Promise<void>;
+
+  findByUserId(userId: string): Promise<RefreshToken | null>;
 }

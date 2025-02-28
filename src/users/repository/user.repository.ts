@@ -1,23 +1,25 @@
 import { UserRepository } from './user.repository.interface';
 import { User } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findByEmail(email: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<User | null> {
     return this.prisma.user.findFirst({
       where: { email },
     });
   }
 
-  findById(id: string): Promise<User | null> {
+  async findById(id: string): Promise<User | null> {
     return this.prisma.user.findFirst({
       where: { id },
     });
   }
 
-  create(user: User): Promise<User> {
+  async create(user: User): Promise<User> {
     return this.prisma.user.create({ data: user });
   }
 }

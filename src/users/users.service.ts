@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PasswordService } from '../common/services/password.service';
 import { DuplicateCheckService } from '../common/services/duplicate-check.service';
 import { UserRepository } from './repository/user.repository.interface';
@@ -7,6 +7,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 @Injectable()
 export class UsersService {
   constructor(
+    @Inject('UserRepository')
     private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
     private readonly duplicateCheckService: DuplicateCheckService,
