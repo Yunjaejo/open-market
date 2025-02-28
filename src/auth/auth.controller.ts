@@ -43,13 +43,16 @@ export class AuthController {
       maxAge: 60 * 1000 * 60 * 24 * this.tokenMaxAge,
     });
 
+    res.setHeader('Authorization', 'Bearer ' + accessToken);
+
     return res.status(200).json({ accessToken });
   }
 
   @Post('refresh')
   @UseGuards(JwtAuthGuard)
   async refresh(@Req() req: Request) {
-    const userId = req.cookies.user.userId;
-    return await this.authService.refreshAccessToken(userId);
+    const refreshToken = req.cookies.refresh_token;
+    const result = await this.authService.tokenDecode(refreshToken);
+    return await this.authService.refreshAccessToken(result.sub);
   }
 }

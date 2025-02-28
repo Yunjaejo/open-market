@@ -53,6 +53,10 @@ export class AuthService {
     return user;
   }
 
+  async tokenDecode(refreshToken: string) {
+    return this.jwtService.decode(refreshToken);
+  }
+
   async createAccessToken(user: User) {
     const payload = {
       sub: user.id,
@@ -100,5 +104,9 @@ export class AuthService {
     const user = await this.usersService.findById(userId);
 
     return this.createAccessToken(user);
+  }
+
+  async tokenValidateUser(payload: any) {
+    return this.usersService.findById(payload.sub);
   }
 }
