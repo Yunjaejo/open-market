@@ -16,12 +16,14 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
   async upsert(
     userId: number,
     refreshToken: string,
+    issuedAt: Date,
     expiresIn: number,
   ): Promise<void> {
     await this.prisma.refreshToken.upsert({
       where: { userId },
       update: {
         token: refreshToken,
+        issuedAt,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000 * expiresIn),
       },
       create: {

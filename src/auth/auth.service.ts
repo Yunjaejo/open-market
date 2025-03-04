@@ -91,7 +91,12 @@ export class AuthService {
   }
 
   private async saveRefreshToken(user: User, refreshToken: string) {
-    await this.tokenRepository.upsert(user.id, refreshToken, this.expiresDay);
+    await this.tokenRepository.upsert(
+      user.id,
+      refreshToken,
+      new Date(),
+      this.expiresDay,
+    );
   }
 
   async refreshAccessToken(userId: number) {
