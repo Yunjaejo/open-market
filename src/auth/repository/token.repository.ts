@@ -7,14 +7,14 @@ import { Injectable } from '@nestjs/common';
 export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findByUserId(userId: string): Promise<RefreshToken | null> {
+  async findByUserId(userId: number): Promise<RefreshToken | null> {
     return this.prisma.refreshToken.findUnique({
       where: { userId },
     });
   }
 
   async upsert(
-    userId: string,
+    userId: number,
     refreshToken: string,
     expiresIn: number,
   ): Promise<void> {

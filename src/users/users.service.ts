@@ -14,7 +14,7 @@ export class UsersService {
     private readonly duplicateCheckService: DuplicateCheckService,
   ) {}
 
-  private async findUserOrFail(query: { id?: string; email?: string }) {
+  private async findUserOrFail(query: { id?: number; email?: string }) {
     let user;
     if (query.id) {
       user = await this.userRepository.findById(query.id);
@@ -50,7 +50,7 @@ export class UsersService {
     return this.userRepository.create(user);
   }
 
-  async findById(id: string) {
+  async findById(id: number) {
     return this.findUserOrFail({ id });
   }
 
@@ -58,7 +58,7 @@ export class UsersService {
     return this.findUserOrFail({ email });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: number, updateUserDto: UpdateUserDto) {
     const { nickname, phone } = updateUserDto;
     await this.duplicateCheckService.checkDuplicate(undefined, nickname, phone);
     await this.findUserOrFail({ id });
@@ -66,7 +66,7 @@ export class UsersService {
     return this.userRepository.update(id, updateUserDto);
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     await this.findUserOrFail({ id });
 
     return this.userRepository.delete(id);

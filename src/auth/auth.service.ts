@@ -94,7 +94,7 @@ export class AuthService {
     await this.tokenRepository.upsert(user.id, refreshToken, this.expiresDay);
   }
 
-  async refreshAccessToken(userId: string) {
+  async refreshAccessToken(userId: number) {
     const token = await this.tokenRepository.findByUserId(userId);
 
     if (!token || token.userId !== userId) {

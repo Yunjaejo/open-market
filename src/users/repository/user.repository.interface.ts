@@ -4,11 +4,11 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 export interface UserRepository {
   findByEmail(email: string): Promise<User | null>;
 
-  findById(id: string): Promise<User | null>;
+  findById(id: number): Promise<User | null>;
 
   create(user: Partial<User>): Promise<User>;
 
-  update(id: string, updateUserDto: UpdateUserDto): Promise<User>;
+  update(id: number, updateUserDto: UpdateUserDto): Promise<User>;
 
-  delete(id: string): Promise<User>;
+  delete(id: number): Promise<User>;
 }
