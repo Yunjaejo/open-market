@@ -8,17 +8,17 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement()) @map("id")
-  email     String   @unique @map("email")
-  pwd       String   @map("pwd")
-  name      String   @map("name")
-  phone     String   @unique @map("phone")
-  nickname  String   @unique @map("nickname")
-  address   String   @map("address")
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  pwd       String
+  name      String
+  phone     String   @unique
+  nickname  String   @unique
+  address   String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   isDeleted Boolean  @default(false) @map("is_deleted")
-  type      UserType @map("type")
+  type      UserType
 
   items        Item[]
   cart         Cart[]
@@ -38,10 +38,10 @@ enum UserType {
 }
 
 model RefreshToken {
-  id        Int      @id @default(autoincrement()) @map("id")
-  token     String   @unique @map("token")
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
   expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
+  issuedAt  DateTime @default(now()) @map("issued_at")
   userId    Int      @unique @map("user_id")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -51,15 +51,15 @@ model RefreshToken {
 }
 
 model Item {
-  id          Int      @id @default(autoincrement()) @map("id")
-  name        String   @map("name")
-  price       Int      @map("price")
-  quantity    Int      @map("quantity")
+  id          Int      @id @default(autoincrement())
+  name        String
+  price       Int
+  quantity    Int
   imageUrl    String?  @map("image_url")
-  info        String   @map("info")
+  info        String
   reviewCount Int      @map("review_count")
-  category    Category @map("category")
-  nickname    String   @map("nickname")
+  category    Category
+  nickname    String
   userId      Int      @map("user_id")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -75,13 +75,14 @@ enum Category {
   ELECTRONICS
   FASHION
   FOOD
-  OTHER
+  PET
+  ETC
 }
 
 model Cart {
-  id        Int      @id @default(autoincrement()) @map("id")
+  id        Int      @id @default(autoincrement())
   itemId    Int      @map("item_id")
-  quantity  Int      @map("quantity")
+  quantity  Int
   createdAt DateTime @default(now()) @map("created_at")
   userId    Int      @map("user_id")
 
@@ -92,9 +93,9 @@ model Cart {
 }
 
 model Order {
-  id         Int         @id @default(autoincrement()) @map("id")
+  id         Int         @id @default(autoincrement())
   totalPrice Int         @map("total_price")
-  status     OrderStatus @default(PENDING) @map("status")
+  status     OrderStatus @default(PENDING)
   createdAt  DateTime    @default(now()) @map("created_at")
   userId     Int         @map("user_id")
 
@@ -107,16 +108,16 @@ model Order {
 
 enum OrderStatus {
   PENDING
-  COMPLETED
+  FULFILLED
   CANCELLED
 }
 
 model OrderItem {
-  id       Int @id @default(autoincrement()) @map("id")
+  id       Int @id @default(autoincrement())
   orderId  Int @map("order_id")
   itemId   Int @map("item_id")
-  price    Int @map("price")
-  quantity Int @map("quantity")
+  price    Int
+  quantity Int
 
   order Order @relation(fields: [orderId], references: [id])
   item  Item  @relation(fields: [itemId], references: [id])
@@ -125,11 +126,11 @@ model OrderItem {
 }
 
 model Review {
-  id        Int      @id @default(autoincrement()) @map("id")
+  id        Int      @id @default(autoincrement())
   itemId    Int      @map("item_id")
-  nickname  String   @map("nickname")
-  rating    Int      @map("rating")
-  content   String?  @map("content")
+  nickname  String
+  rating    Int
+  content   String?
   createdAt DateTime @default(now()) @map("created_at")
   isDeleted Boolean? @map("is_deleted")
   userId    Int      @map("user_id")
@@ -142,10 +143,10 @@ model Review {
 }
 
 model ReviewComment {
-  id        Int      @id @default(autoincrement()) @map("id")
-  nickname  String   @map("nickname")
-  content   String   @map("content")
-  type      UserType @map("type")
+  id        Int      @id @default(autoincrement())
+  nickname  String
+  content   String
+  type      UserType
   createdAt DateTime @default(now()) @map("created_at")
   reviewId  Int      @map("review_id")
 
