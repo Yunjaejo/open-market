@@ -1,7 +1,7 @@
 import { RefreshToken } from '@prisma/client';
 
 export interface RefreshTokenRepository {
-  upsert(userId: string, token: string, expiresIn: number): Promise<void>;
+  upsert(userId: number, token: string, expiresIn: number): Promise<void>;
 
-  findByUserId(userId: string): Promise<RefreshToken | null>;
+  findByUserId(userId: number): Promise<RefreshToken | null>;
 }

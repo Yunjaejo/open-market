@@ -14,7 +14,7 @@ export class PrismaUserRepository implements UserRepository {
     });
   }
 
-  async findById(id: string): Promise<User | null> {
+  async findById(id: number): Promise<User | null> {
     return this.prisma.user.findFirst({
       where: { id },
     });
@@ -24,14 +24,14 @@ export class PrismaUserRepository implements UserRepository {
     return this.prisma.user.create({ data: user });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: number, updateUserDto: UpdateUserDto) {
     return this.prisma.user.update({
       where: { id },
       data: updateUserDto,
     });
   }
 
-  async delete(id: string): Promise<User> {
+  async delete(id: number): Promise<User> {
     return this.prisma.user.delete({
       where: { id },
     });

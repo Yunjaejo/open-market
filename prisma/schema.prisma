@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,23 +8,28 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  pwd       String
-  name      String
-  phone     String   @unique
-  nickname  String   @unique
-  address   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  type      UserType
-  isDeleted Boolean  @default(false)
+  id        Int      @id @default(autoincrement()) @map("id")
+  email     String   @unique @map("email")
+  pwd       String   @map("pwd")
+  name      String   @map("name")
+  phone     String   @unique @map("phone")
+  nickname  String   @unique @map("nickname")
+  address   String   @map("address")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  type      UserType @map("type")
 
   items        Item[]
-  Cart         Cart[]
-  Order        Order[]
-  Review       Review[]
-  RefreshToken RefreshToken?
+  cart         Cart[]
+  order        Order[]
+  review       Review[]
+  refreshToken RefreshToken?
+
+  @@index([email])
+  @@index([nickname])
+  @@index([phone])
+  @@map("users")
 }
 
 enum UserType {
@@ -39,104 +38,118 @@ enum UserType {
 }
 
 model RefreshToken {
-  id        String   @id @default(uuid())
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  userId    String   @unique
+  id        Int      @id @default(autoincrement()) @map("id")
+  token     String   @unique @map("token")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    Int      @unique @map("user_id")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@map("refresh_tokens")
 }
 
 model Item {
-  id          String   @id @default(uuid())
-  name        String
-  category    Category
-  price       Int
-  quantity    Int
-  image_url   String?
-  info        String
-  reviewCount Int
-  nickname    String
-  userId      String
+  id          Int      @id @default(autoincrement()) @map("id")
+  name        String   @map("name")
+  price       Int      @map("price")
+  quantity    Int      @map("quantity")
+  imageUrl    String?  @map("image_url")
+  info        String   @map("info")
+  reviewCount Int      @map("review_count")
+  category    Category @map("category")
+  nickname    String   @map("nickname")
+  userId      Int      @map("user_id")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  OrderItem OrderItem[]
+  orderItem OrderItem[]
+  Cart      Cart[]
 
   @@index([userId])
+  @@map("items")
 }
 
 enum Category {
-  FOOD
+  ELECTRONICS
   FASHION
-  PET
-  ETC
+  FOOD
+  OTHER
 }
 
 model Cart {
-  id        String   @id @default(uuid())
-  itemId    String
-  quantity  Int
-  createdAt DateTime @default(now())
-  userId    String
+  id        Int      @id @default(autoincrement()) @map("id")
+  itemId    Int      @map("item_id")
+  quantity  Int      @map("quantity")
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    Int      @map("user_id")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("carts")
 }
 
 model Order {
-  id         String      @id @default(uuid())
-  totalPrice Int
-  status     OrderStatus @default(PENDING)
-  createdAt  DateTime    @default(now())
-  userId     String
+  id         Int         @id @default(autoincrement()) @map("id")
+  totalPrice Int         @map("total_price")
+  status     OrderStatus @default(PENDING) @map("status")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  userId     Int         @map("user_id")
 
   user User @relation(fields: [userId], references: [id])
 
-  OrderItem OrderItem[]
+  orderItem OrderItem[]
+
+  @@map("orders")
 }
 
 enum OrderStatus {
   PENDING
-  FULFILLED
+  COMPLETED
   CANCELLED
 }
 
 model OrderItem {
-  id       String @id @default(uuid())
-  orderId  String
-  itemId   String
-  price    Int
-  quantity Int
+  id       Int @id @default(autoincrement()) @map("id")
+  orderId  Int @map("order_id")
+  itemId   Int @map("item_id")
+  price    Int @map("price")
+  quantity Int @map("quantity")
 
   order Order @relation(fields: [orderId], references: [id])
   item  Item  @relation(fields: [itemId], references: [id])
+
+  @@map("order_items")
 }
 
 model Review {
-  id        String   @id @default(uuid())
-  itemId    String
-  nickname  String
-  rating    Int
-  content   String?
-  createdAt DateTime @default(now())
-  isDeleted Boolean?
-  userId    String
+  id        Int      @id @default(autoincrement()) @map("id")
+  itemId    Int      @map("item_id")
+  nickname  String   @map("nickname")
+  rating    Int      @map("rating")
+  content   String?  @map("content")
+  createdAt DateTime @default(now()) @map("created_at")
+  isDeleted Boolean? @map("is_deleted")
+  userId    Int      @map("user_id")
 
   user User @relation(fields: [userId], references: [id])
 
-  ReviewComment ReviewComment[]
+  reviewComment ReviewComment[]
+
+  @@map("reviews")
 }
 
 model ReviewComment {
-  id        String   @id @default(uuid())
-  nickname  String
-  content   String
-  type      UserType
-  createdAt DateTime @default(now())
-  reviewId  String
+  id        Int      @id @default(autoincrement()) @map("id")
+  nickname  String   @map("nickname")
+  content   String   @map("content")
+  type      UserType @map("type")
+  createdAt DateTime @default(now()) @map("created_at")
+  reviewId  Int      @map("review_id")
 
   review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@map("review_comments")
 }
